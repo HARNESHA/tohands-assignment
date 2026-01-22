@@ -75,7 +75,6 @@ jobs:
             ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
           docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
           docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
-          yq -i '.frontend.image.tag = strenv(IMAGE_TAG)' helm/app-platform/values.yaml
 
   update-helm-chart:
     runs-on: ubuntu-latest
