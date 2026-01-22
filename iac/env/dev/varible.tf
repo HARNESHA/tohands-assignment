@@ -1,7 +1,7 @@
 variable "AWSProfile" {
   description = "The AWS CLI profile to use."
   type        = string
-  default     = "default"
+  default     = ""
 }
 variable "AWSRegion" {
   description = "The AWS region to deploy resources in."
