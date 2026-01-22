@@ -20,12 +20,12 @@ env:
 jobs:
 
   ci:
-    name: ci-jobs
+    name: ci-job
     runs-on: ubuntu-latest
     
     permissions:
       id-token: write
-      contents: read
+      contents: write
 
     steps:
       - name: Checkout code
@@ -64,3 +64,54 @@ jobs:
             ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
           docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
           docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
+
+      - name: Update Helm image tags
+        run: |
+          yq -i '.frontend.image.tag = strenv(IMAGE_TAG)' helm/app-platform/values.yaml
+          yq -i '.backend.image.tag  = strenv(IMAGE_TAG)' helm/app-platform/values.yaml
+
+  cd:
+    name: cd-job
+    needs: ci
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::935456168005:role/GitHubAction-AssumeRoleWithAction
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+        
+      - name: Setup EKS Kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --name $EKS_CLUSTER_NAME \
+            --region $AWS_REGION
+          kubectl cluster-info
+
+      - name: Deploy Backend
+        run: |
+          kubectl set image deployment/fast-api-backend \
+            fast-api-backend=${{ steps.ecr.outputs.registry }}/${{ env.ECR_BACKEND_REPO }}:${{ env.IMAGE_TAG }} \
+            --record
+
+      - name: Deploy Frontend
+        run: |
+          kubectl set image deployment/fast-api-frontend \
+            fast-api-frontend=${{ steps.ecr.outputs.registry }}/${{ env.ECR_FRONTEND_REPO }}:${{ env.IMAGE_TAG }} \
+            --record
+
+      - name: Verify Deployment
+        run: | 
+          kubectl rollout history deployment/fast-api-backend
+          kubectl rollout history deployment/fast-api-frontend
