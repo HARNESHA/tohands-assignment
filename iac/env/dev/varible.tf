@@ -6,7 +6,7 @@ variable "AWSProfile" {
 variable "AWSRegion" {
   description = "The AWS region to deploy resources in."
   type        = string
-  default     = "us-east-1"
+  default     = ""
 }
 variable "ApplicationName" {
   description = "The name of the application."

@@ -1,4 +1,4 @@
-AWSProfile = "default"
+AWSProfile = ""
 AWSRegion  = "ap-south-1"
 
 ApplicationName = "assignment"
