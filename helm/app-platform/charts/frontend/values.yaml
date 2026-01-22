@@ -1,0 +1,14 @@
+namespace: frontend-ns
+image:
+  repository: YOUR_ECR/frontend
+  tag: latest
+replicaCount: 2
+
+service:
+  port: 80
+
+hpa:
+  enabled: true
+  min: 2
+  max: 6
+  memory: 70

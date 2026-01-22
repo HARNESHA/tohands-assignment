@@ -1,0 +1,40 @@
+global:
+  environment: dev
+
+frontend:
+  namespace: frontend
+  image:
+    repository: jayharnesha007/frontend
+    tag: latest
+  replicaCount: 1
+  service:
+    port: 80
+  hpa:
+    enabled: true
+    min: 1
+    max: 2
+    memory: 70
+  ingress:
+    enabled: false
+    host: ui.example.com
+    scheme: internet-facing
+    group: app-platform
+
+backend:
+  namespace: backend
+  image:
+    repository: jayharnesha007/backend
+    tag: latest
+  replicaCount: 1
+  service:
+    port: 8000
+  hpa:
+    enabled: true
+    min: 1
+    max: 2
+    memory: 70
+  ingress:
+    enabled: false
+    host: ui.example.com
+    scheme: internet-facing
+    group: app-platform

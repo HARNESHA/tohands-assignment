@@ -1,0 +1,14 @@
+namespace: backend-ns
+image:
+  repository: YOUR_ECR/backend
+  tag: latest
+replicaCount: 2
+
+service:
+  port: 8000
+
+hpa:
+  enabled: true
+  min: 2
+  max: 6
+  memory: 70
