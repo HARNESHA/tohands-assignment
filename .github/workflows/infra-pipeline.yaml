@@ -58,7 +58,7 @@ jobs:
 
       # ---------- TERRAFORM FORMAT CHECK ----------
       - name: Terraform Fmt Check
-        working-directory: iac/env/dev
+        working-directory: iac/
         run: terraform fmt -check -recursive
 
       # ---------- INSTALL TFLINT ----------

@@ -1,4 +1,4 @@
-name: App-CI-CD-Pipeline
+name: Application-Pipeline
 
 on:
   workflow_dispatch:

@@ -15,6 +15,7 @@ eks_addons = {
   coredns    = ["v1.12.4-eksbuild.1"]
   kube-proxy = ["v1.33.5-eksbuild.2"]
   vpc-cni    = ["v1.20.4-eksbuild.1"]
+  metrics-server = ["v0.8.0-eksbuild.6"]
 }
 
 node_group_desired_capacity = 2

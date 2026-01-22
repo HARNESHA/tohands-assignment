@@ -16,7 +16,6 @@ __pycache__/
 .env
 .venv/
 venv/
-ENV/
 
 poetry.lock.backup
 
