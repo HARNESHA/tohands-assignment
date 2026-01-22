@@ -2,8 +2,6 @@ name: Terraform Infra Pipeline
 
 on:
   workflow_dispatch:
-
-  workflow_dispatch:
     inputs:
       action:
         description: "Terraform action"
@@ -46,14 +44,17 @@ jobs:
 
       # ---------- INIT ----------
       - name: Terraform Init
+        working-directory: iac/env/dev
         run: terraform init -backend-config=backend.config.hcl
 
       # ---------- VALIDATE ----------
       - name: Terraform Validate
+        working-directory: iac/env/dev
         run: terraform validate
 
       # ---------- TERRAFORM FORMAT CHECK ----------
       - name: Terraform Fmt Check
+        working-directory: iac/env/dev
         run: terraform fmt -check -recursive
 
       # ---------- INSTALL TFLINT ----------
