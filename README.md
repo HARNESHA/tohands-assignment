@@ -192,3 +192,83 @@ kubectl cluster-info
 ```
 
 <img width="1848" height="130" alt="image" src="https://github.com/user-attachments/assets/624147b5-bc63-41ff-a3c6-59779325a842" />
+
+```bash
+kubectl create secret generic backend-secret \
+    --from-literal=DOMAIN=localhost \
+    --from-literal=ENVIRONMENT=local \
+    --from-literal=PROJECT_NAME="Full Stack FastAPI Project" \
+    --from-literal=STACK_NAME=full-stack-fastapi-project \
+    --from-literal=BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5173,http://assignment.jay.cloud-ip" \
+    --from-literal=SECRET_KEY=harnesha2244 \
+    --from-literal=FIRST_SUPERUSER=harnesha22@gmail.com \
+    --from-literal=FIRST_SUPERUSER_PASSWORD=harnesha22 \
+    --from-literal=USERS_OPEN_REGISTRATION=True \
+    --from-literal=SMTP_HOST= \
+    --from-literal=SMTP_USER= \
+    --from-literal=SMTP_PASSWORD= \
+    --from-literal=EMAILS_FROM_EMAIL=info@example.com \
+    --from-literal=SMTP_TLS=True \
+    --from-literal=SMTP_SSL=False \
+    --from-literal=SMTP_PORT=587 \
+    --from-literal=POSTGRES_SERVER=database-1.xxx.ap-south-1.rds.amazonaws.com \
+    --from-literal=POSTGRES_PORT=5432 \
+    --from-literal=POSTGRES_DB=assignmentdevdb \
+    --from-literal=POSTGRES_USER=postgres \
+    --from-literal=POSTGRES_PASSWORD= \
+ --dry-run=client -o yaml > secret.yaml
+ kubectl apply -f secret.yaml
+```
+
+## 🚀 CI/CD & Application Rollback Workflow (Automated)
+
+After infrastructure deployment, take a notes of **Terraform outputs** to configure env in workflows.
+
+### ⚙️ GitHub Actions – Configuration
+
+* The following environment variables needs to be configured in both relative ci-cd workflow & rollback workflow to make automated deployment.
+* Make sure to add updated role from aws account to perform automated deployment with setting up [OIDC for github actions.](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws?versionId=free-pro-team%40latest&productId=apps)
+* The pipeline iam role should be mapped to the EKS cluster authentication layer.
+```
+env:
+  AWS_REGION: ap-south-1
+  ECR_REGISTRY: xxx.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_BACKEND_REPO: assignment-backend
+  ECR_FRONTEND_REPO: assignment-frontend
+  EKS_CLUSTER_NAME: assignment-cluster
+  VITE_API_URL: http://assignment-api.jay.cloud-ip
+  IMAGE_TAG: ${{ github.sha }}
+```
+```
+  - name: Configure AWS credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: arn:aws:iam::935456168005:role/GitHubAction-AssumeRoleWithAction
+      aws-region: ${{ env.AWS_REGION }}
+```
+
+### CI-CD Pipeline (Automated)
+
+* Once the all env & workflow configuration is done click on the below links to trigger the workflows.
+* Manual trigger (workflow dispatch)
+* [CI-CD Pipeline workflow](https://github.com/HARNESHA/tohands-assignment/actions/workflows/app-pipeline.yaml) 
+
+### 🧪 CI Phase – Image Lifecycle
+
+During CI execution:
+
+* Backend and frontend Docker images are built
+* Images are versioned using:
+
+  * Git commit SHA
+  * `latest` tag
+* Images are pushed to **Amazon ECR**
+
+### ☸️ CD Phase – Application Deployment
+
+After image build:
+
+* Kubernetes deployments are updated automatically
+* Rolling updates are triggered in EKS
+* Previous versions are retained as revisions
+
