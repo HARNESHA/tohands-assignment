@@ -7,9 +7,9 @@ output "infra_details" {
     private_subnets = module.vpc.private_subnets
 
     # # EKS
-    # cluster_arn      = module.eks.cluster_arn
-    # node_group_arn   = module.eks.node_group_arn
-    # node_group_sg_id = module.eks.node_group_security_group_id
+    cluster_arn      = module.eks.cluster_arn
+    node_group_arn   = module.eks.node_group_arn
+    node_group_sg_id = module.eks.node_group_security_group_id
 
     # RDS
     rds_endpoint = module.rds.db_instance_address
