@@ -3,7 +3,7 @@ global:
 frontend:
   namespace: frontend
   image:
-    repository: jayharnesha007/frontend
+    repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-frontend
     tag: de4877b42e69c540ed3c62a7d2c3d6c0cce32caf
   replicaCount: 1
   service:
@@ -21,7 +21,7 @@ frontend:
 backend:
   namespace: backend
   image:
-    repository: jayharnesha007/backend
+    repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-backend
     tag: de4877b42e69c540ed3c62a7d2c3d6c0cce32caf
   replicaCount: 1
   service:
