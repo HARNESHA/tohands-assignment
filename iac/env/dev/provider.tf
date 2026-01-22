@@ -15,7 +15,6 @@ terraform {
 }
 
 provider "aws" {
-  profile                  = var.AWSProfile
   region                   = var.AWSRegion
-  shared_credentials_files = ["~/.aws/credentials"]
+  profile = var.AWSProfile != "" ? var.AWSProfile : null
 }
