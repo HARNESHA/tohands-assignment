@@ -1,11 +1,10 @@
 global:
   environment: dev
-
 frontend:
   namespace: frontend
   image:
     repository: jayharnesha007/frontend
-    tag: latest
+    tag: de4877b42e69c540ed3c62a7d2c3d6c0cce32caf
   replicaCount: 1
   service:
     port: 80
@@ -19,12 +18,11 @@ frontend:
     host: ui.example.com
     scheme: internet-facing
     group: app-platform
-
 backend:
   namespace: backend
   image:
     repository: jayharnesha007/backend
-    tag: latest
+    tag: de4877b42e69c540ed3c62a7d2c3d6c0cce32caf
   replicaCount: 1
   service:
     port: 8000
