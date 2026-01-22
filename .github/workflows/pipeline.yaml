@@ -49,8 +49,9 @@ jobs:
             ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:latest
           docker tag $ECR_BACKEND_REPO:${IMAGE_TAG} \
             ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:${IMAGE_TAG}
-          docker push ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:${IMAGE_TAG}
           docker push ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:latest 
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:${IMAGE_TAG}
+
 
       - name: Build & push frontend image
         working-directory: application/frontend
@@ -62,8 +63,8 @@ jobs:
             ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
           docker tag $ECR_FRONTEND_REPO:${IMAGE_TAG} \
             ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
-          docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
           docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
 
       - name: Update Helm image tags
         run: |
