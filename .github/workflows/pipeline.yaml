@@ -10,7 +10,7 @@ on:
 
 env:
   AWS_REGION: ap-south-1
-  ECR_REGISTRY: 935456168005.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_REGISTRY: 826136930409.dkr.ecr.ap-south-1.amazonaws.com
   ECR_BACKEND_REPO: assignment-backend
   ECR_FRONTEND_REPO: assignment-frontend
   EKS_CLUSTER_NAME: assignment-cluster
@@ -34,7 +34,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::935456168005:role/GitHubAction-AssumeRoleWithAction
+          role-to-assume: arn:aws:iam::826136930409:role/GitHubAction-AssumeRoleWithAction
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
