@@ -57,7 +57,7 @@ module "ecr" {
   source  = "terraform-aws-modules/ecr/aws"
   version = "~> 2.3"
 
-  repository_name = each.value
+  repository_name                 = each.value
   repository_image_tag_mutability = "MUTABLE"
   repository_read_write_access_arns = [
     "*"
@@ -82,7 +82,6 @@ module "ecr" {
 
   tags = local.Common_Tags
 }
-
 
 module "rds" {
   source                       = "s3::https://terrraform-module.s3.ap-south-1.amazonaws.com/rds/v1.0.1.zip"

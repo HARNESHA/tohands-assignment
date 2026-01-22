@@ -23,6 +23,7 @@ permissions:
 
 jobs:
   terraform:
+    name: Infra-Setup
     runs-on: ubuntu-latest
 
     defaults:
@@ -59,7 +60,9 @@ jobs:
       # ---------- TERRAFORM FORMAT CHECK ----------
       - name: Terraform Fmt Check
         working-directory: iac/
-        run: terraform fmt -check -recursive
+        run: |
+          terraform fmt -recursive -diff
+          terraform fmt -recursive -check
 
       # ---------- INSTALL TFLINT ----------
       - name: Install tflint
