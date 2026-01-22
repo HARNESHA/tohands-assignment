@@ -75,7 +75,6 @@ Iac/
 
 > 🧩 **Design Approach**
 >
-> * `modules/` → Reusable infrastructure components
 > * `env/dev/` → Environment-specific orchestration
 > * `vars/` → Environment-specific values (kept separate for safety)
 
@@ -103,9 +102,14 @@ aws s3api put-bucket-versioning \
   --bucket tfstate-dev-<unique-name> \
   --versioning-configuration Status=Enabled
 ```
-## ⚙️ Step 2: Configure Terraform Backend
 
-Update the backend configuration file:
+## 🔍 Step 2: Initialize & Deploy Infrastructure via Infra Pipeline
+
+Instead of running Terraform manually from your local machine, **infrastructure provisioning is fully automated using the GitHub Actions Infra Pipeline**.
+
+### 📄 Backend Configuration Verification
+
+Before triggering the pipeline, verify that the backend configuration file contains correct values:
 
 📄 **`env/dev/backend.config.hcl`**
 
@@ -115,44 +119,42 @@ key     = "eks/dev/terraform.tfstate"
 region  = "ap-south-1"
 encrypt = true
 ```
-## 🔍 Step 3: Initialize & Validate Terraform
 
-Run the following commands from `env/dev`:
+Ensure the S3 bucket exists and versioning is enabled.
 
-```bash
-terraform init -backend-config=backend.config.hcl
-terraform validate
+### ⚙️ Trigger Infra Creation Workflow
+
+Once the backend configuration is verified:
+
+* Update the **Infra Pipeline IAM Role ARN** in the workflow file
+* Commit the changes to the repository
+* Trigger the [**Infrastructure Creation Workflow**](https://github.com/HARNESHA/tohands-assignment/actions/workflows/infra-pipeline.yaml)
+
+### 🔐 Required Role Update Before Running Pipeline
+
+Before executing the workflow, ensure the **Terraform Infra Pipeline Role** ARN is updated in the workflow file:
+
+```yaml
+- name: Configure AWS credentials
+  uses: aws-actions/configure-aws-credentials@v4
+  with:
+    role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/GitHubAction-Terraform-InfraRole
+    aws-region: ap-south-1
 ```
 
-This will:
+Replace `<ACCOUNT_ID>` with your AWS Account ID.
 
-* 🔐 Configure the **remote S3 backend**
-* 📦 Download required providers
+The Infra Pipeline will automatically:
+
+* 🔐 Configure the remote S3 backend
+* 📦 Download Terraform providers
 * 🧱 Initialize Terraform modules
-* ✅ Validate configuration syntax
+* 🏗️ Provision AWS infrastructure
+* ✅ Validate and apply Terraform configuration
 
-<img width="1695" height="962" alt="image" src="https://github.com/user-attachments/assets/74934c5a-cd4b-4173-80a9-210a9715a811" />
+### 📤 Terraform Outputs
 
-## 🧪 Step 4: Plan & Apply Infrastructure
-
-### Generate Execution Plan
-
-```bash
-terraform plan \
-  -var-file=../../vars/dev.terraform.tfvars \
-  -out=tfplan
-```
-
-<img width="480" height="471" alt="image" src="https://github.com/user-attachments/assets/1e09a766-5013-44c5-88f6-9652af509f88" />
-
-### 🚀 Apply Infrastructure
-
-After reviewing the plan:
-
-```bash
-terraform apply tfplan
-terraform output
-```
+After successful workflow execution, Terraform outputs (EKS Cluster Name, RDS Endpoint, VPC details, etc.) are printed in pipeline logs and stored in remote state.
 
 Terraform will:
 
@@ -167,7 +169,7 @@ Terraform will:
 > * CI/CD pipelines
 > * Application deployment
 
-## ☸️ Step 5: Access EKS & Create a Backed env Secrets
+## ☸️ Step 3: Access EKS | Configure ALB Ingress
 
 Update kubeconfig:
 
@@ -177,35 +179,9 @@ aws eks update-kubeconfig \
   --region ap-south-1
 kubectl cluster-info
 ```
-
 <img width="1848" height="130" alt="image" src="https://github.com/user-attachments/assets/624147b5-bc63-41ff-a3c6-59779325a842" />
 
-```bash
-kubectl create secret generic backend-secret \
-    --from-literal=DOMAIN=localhost \
-    --from-literal=ENVIRONMENT=local \
-    --from-literal=PROJECT_NAME="Full Stack FastAPI Project" \
-    --from-literal=STACK_NAME=full-stack-fastapi-project \
-    --from-literal=BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5173,http://assignment.jay.cloud-ip" \
-    --from-literal=SECRET_KEY=harnesha2244 \
-    --from-literal=FIRST_SUPERUSER=harnesha22@gmail.com \
-    --from-literal=FIRST_SUPERUSER_PASSWORD=harnesha22 \
-    --from-literal=USERS_OPEN_REGISTRATION=True \
-    --from-literal=SMTP_HOST= \
-    --from-literal=SMTP_USER= \
-    --from-literal=SMTP_PASSWORD= \
-    --from-literal=EMAILS_FROM_EMAIL=info@example.com \
-    --from-literal=SMTP_TLS=True \
-    --from-literal=SMTP_SSL=False \
-    --from-literal=SMTP_PORT=587 \
-    --from-literal=POSTGRES_SERVER=database-1.xxx.ap-south-1.rds.amazonaws.com \
-    --from-literal=POSTGRES_PORT=5432 \
-    --from-literal=POSTGRES_DB=assignmentdevdb \
-    --from-literal=POSTGRES_USER=postgres \
-    --from-literal=POSTGRES_PASSWORD= \
- --dry-run=client -o yaml > secret.yaml
- kubectl apply -f secret.yaml
-```
+Deploy an [ALB Ingress Controller](https://docs.aws.amazon.com/eks/latest/userguide/lbc-helm.html).
 
 ## 🚀 CI/CD & Application Workflow (Automated)
 
@@ -214,8 +190,8 @@ After infrastructure deployment, take a notes of **Terraform outputs** to config
 ### ⚙️ GitHub Actions – Configuration
 
 * The following environment variables needs to be configured in both relative ci-cd workflow & rollback workflow to make automated deployment.
-* Make sure to add updated role from aws account to perform automated deployment with setting up [OIDC for github actions.](https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws?versionId=free-pro-team%40latest&productId=apps)
 * The pipeline iam role should be mapped to the EKS cluster authentication layer.
+
 ```
 env:
   AWS_REGION: ap-south-1
@@ -230,7 +206,7 @@ env:
   - name: Configure AWS credentials
     uses: aws-actions/configure-aws-credentials@v4
     with:
-      role-to-assume: arn:aws:iam::935456168005:role/GitHubAction-AssumeRoleWithAction
+      role-to-assume: arn:aws:iam::xxx:role/GitHubAction-AssumeRoleWithAction
       aws-region: ${{ env.AWS_REGION }}
 ```
 
@@ -258,5 +234,42 @@ After image build:
 * Kubernetes deployments are updated automatically
 * Rolling updates are triggered in EKS
 * Previous versions are retained as revisions
+
+## Step 3: backend application secret with below commads.
+
+```bash
+kubectl create secret generic backend-secret \
+    --from-literal=DOMAIN=localhost \
+    --from-literal=ENVIRONMENT=local \
+    --from-literal=PROJECT_NAME="Full Stack FastAPI Project" \
+    --from-literal=STACK_NAME=full-stack-fastapi-project \
+    --from-literal=BACKEND_CORS_ORIGINS="http://localhost,http://localhost:5173,http://assignment.jay.cloud-ip" \
+    --from-literal=SECRET_KEY=harnesha2244 \
+    --from-literal=FIRST_SUPERUSER=harnesha22@gmail.com \
+    --from-literal=FIRST_SUPERUSER_PASSWORD=harnesha22 \
+    --from-literal=USERS_OPEN_REGISTRATION=True \
+    --from-literal=SMTP_HOST= \
+    --from-literal=SMTP_USER= \
+    --from-literal=SMTP_PASSWORD= \
+    --from-literal=EMAILS_FROM_EMAIL=info@example.com \
+    --from-literal=SMTP_TLS=True \
+    --from-literal=SMTP_SSL=False \
+    --from-literal=SMTP_PORT=587 \
+    --from-literal=POSTGRES_SERVER=database-1.xxx.ap-south-1.rds.amazonaws.com \
+    --from-literal=POSTGRES_PORT=5432 \
+    --from-literal=POSTGRES_DB=assignmentdevdb \
+    --from-literal=POSTGRES_USER=postgres \
+    --from-literal=POSTGRES_PASSWORD= \
+ --dry-run=client -o yaml > secret.yaml
+ kubectl apply -f secret.yaml
+```
+## Step 4: Access the Application
+
+Once the Ingress is applied by application helm.
+
+* AWS automatically provisions an **Application Load Balancer**
+* ALB DNS name becomes available
+* Custom domain (optional) can be mapped via Route53
+<img width="1487" height="493" alt="image" src="https://github.com/user-attachments/assets/9f235506-3ec5-49a5-9cc4-a04bf840aed0" />
 
 
