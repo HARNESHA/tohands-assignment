@@ -13,13 +13,10 @@ Terraform (IaC)
    │     ├── Build Docker Images
    │     ├── Push to Amazon ECR
    │
-   ├── CD Pipeline
-   │     ├── Update Kubernetes Deployments
-   │     ├── Trigger Rolling Updates
-   │
-   └── Rollback Workflow
-         ├── Rollback Backend / Frontend / All
-         └── Rollback to Specific Revision (Optional)
+   └── CD Pipeline
+         ├── Update Kubernetes Deployments
+         └── Trigger Rolling Updates
+
 ```
 
 ## 🚀 Provision AWS Infra 
@@ -71,16 +68,6 @@ Iac/
 │       ├── main.tf
 │       ├── output.tf
 │       ├── provider.tf
-│       └── varible.tf
-├── modules
-│   ├── eks
-│   │   ├── data.tf
-│   │   ├── main.tf
-│   │   ├── output.tf
-│   │   └── varible.tf
-│   └── rds
-│       ├── main.tf
-│       ├── output.tf
 │       └── varible.tf
 └── vars
     └── dev.terraform.tfvars
@@ -220,7 +207,7 @@ kubectl create secret generic backend-secret \
  kubectl apply -f secret.yaml
 ```
 
-## 🚀 CI/CD & Application Rollback Workflow (Automated)
+## 🚀 CI/CD & Application Workflow (Automated)
 
 After infrastructure deployment, take a notes of **Terraform outputs** to configure env in workflows.
 
@@ -271,4 +258,5 @@ After image build:
 * Kubernetes deployments are updated automatically
 * Rolling updates are triggered in EKS
 * Previous versions are retained as revisions
+
 
