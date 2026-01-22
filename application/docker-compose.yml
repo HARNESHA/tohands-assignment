@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: assignment_dev_db
+      POSTGRES_PASSWORD: changethis
+      POSTGRES_DB: assignmentdevdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   container_name: fastapi_backend
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "8000:8000"
+  #   env_file:
+  #     - backend/.env
+  #   volumes:
+  #     - ./backend/app:/app/app
+  #   restart: always
+
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: react_frontend
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - "3000:80"
+  #   restart: always
+
+volumes:
+  postgres_data:
