@@ -5,7 +5,7 @@
 **/terraform.tfstate.*
 **/crash.log
 **/crash.*.log
-
+tfplan
 
 __pycache__/
 *.py[cod]

@@ -1,5 +1,6 @@
 global:
   environment: dev
+
 frontend:
   namespace: frontend
   image:
@@ -17,7 +18,8 @@ frontend:
     enabled: false
     host: ui.example.com
     scheme: internet-facing
-    group: app-platform
+    group: app-ui
+
 backend:
   namespace: backend
   image:
@@ -35,5 +37,5 @@ backend:
     enabled: false
     host: ui.example.com
     scheme: internet-facing
-    group: app-platform
+    group: app-api
   

@@ -79,13 +79,15 @@ jobs:
           terraform plan \
             -var-file=../../vars/dev.terraform.tfvars \
             -out=tfplan
+          terraform show tfplan > tfplan-${{ github.sha }}.txt
+
 
       # ---------- UPLOAD PLAN ARTIFACT ----------
       - name: Upload tfplan
         uses: actions/upload-artifact@v4
         with:
           name: tfplan
-          path: iac/env/dev/tfplan
+          path: iac/env/dev/tfplan-${{ github.sha }}.txt
 
       # ---------- APPLY (ONLY ON MANUAL OR MAIN MERGE) ----------
       - name: Terraform Apply
