@@ -214,7 +214,8 @@ env:
 
 * Once the all env & workflow configuration is done click on the below links to trigger the workflows.
 * Manual trigger (workflow dispatch)
-* [CI-CD Pipeline workflow](https://github.com/HARNESHA/tohands-assignment/actions/workflows/app-pipeline.yaml) 
+* [CI-Pipeline workflow](https://github.com/HARNESHA/tohands-assignment/actions/workflows/ci-pipeline.yaml)
+* [CD-Pipeline workflow](https://github.com/HARNESHA/tohands-assignment/actions/workflows/cd-pipeline.yaml) 
 
 ### 🧪 CI Phase – Image Lifecycle
 
@@ -272,4 +273,76 @@ Once the Ingress is applied by application helm.
 * Custom domain (optional) can be mapped via Route53
 <img width="1487" height="493" alt="image" src="https://github.com/user-attachments/assets/9f235506-3ec5-49a5-9cc4-a04bf840aed0" />
 
+## Step 5: Add cluster Autoscaler
+Now we only need to deploy **Cluster Autoscaler** to scale the cluster.
 
+Since we already have:
+
+* EKS cluster running
+* Memory HPA working
+* Node group tagged
+
+```
+"k8s.io/cluster-autoscaler/assignment-cluster" = "owned"
+"k8s.io/cluster-autoscaler/enabled"            = "true"
+```
+
+The remaining steps are:
+
+### 1) Create IRSA Service Account
+
+(if not done already)
+
+```bash
+eksctl utils associate-iam-oidc-provider \
+ --cluster assignment-cluster \
+ --approve
+```
+
+```bash
+eksctl create iamserviceaccount \
+  --cluster assignment-cluster \
+  --namespace kube-system \
+  --name cluster-autoscaler \
+  --attach-policy-arn arn:aws:iam::<ACCOUNT_ID>:policy/EKSClusterAutoscalerPolicy \
+  --approve
+```
+
+### 2) Install Cluster Autoscaler via Helm
+
+```bash
+helm repo add autoscaler https://kubernetes.github.io/autoscaler
+helm repo update
+
+helm upgrade --install cluster-autoscaler autoscaler/cluster-autoscaler \
+  --namespace kube-system \
+  --set autoDiscovery.clusterName=assignment-cluster \
+  --set awsRegion=<your-region> \
+  --set rbac.serviceAccount.create=false \
+  --set rbac.serviceAccount.name=cluster-autoscaler \
+  --set extraArgs.balance-similar-node-groups=true \
+  --set extraArgs.scale-down-delay-after-add=10m \
+  --set extraArgs.scale-down-unneeded-time=10m
+```
+
+## ✅ Final Verification
+
+```bash
+kubectl -n kube-system logs -f deployment/cluster-autoscaler
+```
+
+Look for:
+
+```
+Discovered node group: assignment-eks-node-group
+Scale-up successful
+```
+
+## 🎯 End Result
+
+Your scaling chain now works fully:
+
+```
+Load ↑ → HPA adds pods → Pods Pending → Cluster Autoscaler adds nodes → Pods scheduled
+Load ↓ → Autoscaler removes unused nodes
+```
