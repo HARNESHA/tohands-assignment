@@ -16,7 +16,7 @@ __pycache__/
 .env
 .venv/
 venv/
-
+*secret.yaml*
 poetry.lock.backup
 
 .pytest_cache/

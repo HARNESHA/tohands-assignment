@@ -1,0 +1,27 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-frontend-to-backend
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: backend
+
+  policyTypes:
+    - Ingress
+
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Values.networkPolicy.frontendNamespace }}
+          podSelector:
+            matchLabels:
+{{ toYaml .Values.networkPolicy.frontendPodSelector | indent 14 }}
+
+      ports:
+        - protocol: TCP
+          port: {{ .Values.service.port }}
+{{- end }}

@@ -19,7 +19,7 @@ eks_addons = {
 }
 
 node_group_desired_capacity = 2
-node_group_max_capacity     = 2
+node_group_max_capacity     = 5
 node_group_min_capacity     = 1
 node_group_capacity_type    = "SPOT"
 node_instance_type          = ["t3.small"]
