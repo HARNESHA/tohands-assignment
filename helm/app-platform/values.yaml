@@ -18,7 +18,7 @@ frontend:
     class: alb
     host: assignment.jay.cloud-ip.cc
     scheme: internet-facing
-    group: app-ui
+    group: application
 backend:
   namespace: backend
   image:
@@ -37,4 +37,4 @@ backend:
     class: alb
     host: assignment-api.jay.cloud-ip.cc
     scheme: internet-facing
-    group: app-api
+    group: application
