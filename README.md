@@ -338,11 +338,7 @@ Discovered node group: assignment-eks-node-group
 Scale-up successful
 ```
 
-## 🎯 End Result
+## Step 5: Findout Resource cost
+Run the [following](https://github.com/HARNESHA/tohands-assignment/blob/dev/cost/cost_script.py) python script to review & analysis the cost assocated with individual resource.
 
-Your scaling chain now works fully:
 
-```
-Load ↑ → HPA adds pods → Pods Pending → Cluster Autoscaler adds nodes → Pods scheduled
-Load ↓ → Autoscaler removes unused nodes
-```
