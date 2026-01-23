@@ -1,11 +1,10 @@
 global:
   environment: dev
-
 frontend:
   namespace: frontend
   image:
     repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-frontend
-    tag: 0de8d677c70589de51fb7cd57635b74f41fa9dfa
+    tag: a918a2a572f22ba4d04f640259b7c772910b3d1e
   replicaCount: 1
   service:
     port: 80
@@ -20,12 +19,11 @@ frontend:
     host: assignment.jay.cloud-ip.cc
     scheme: internet-facing
     group: app-ui
-
 backend:
   namespace: backend
   image:
     repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-backend
-    tag: 0de8d677c70589de51fb7cd57635b74f41fa9dfa
+    tag: a918a2a572f22ba4d04f640259b7c772910b3d1e
   replicaCount: 1
   service:
     port: 8000
@@ -40,4 +38,3 @@ backend:
     host: assignment-api.jay.cloud-ip.cc
     scheme: internet-facing
     group: app-api
-  
