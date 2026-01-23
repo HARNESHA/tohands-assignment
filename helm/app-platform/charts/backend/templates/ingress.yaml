@@ -5,11 +5,11 @@ metadata:
   name: backend-ingress
   namespace: {{ .Values.namespace }}
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: {{ .Values.ingress.scheme }}
     alb.ingress.kubernetes.io/group.name: {{ .Values.ingress.group }}
     alb.ingress.kubernetes.io/target-type: ip
 spec:
+  ingressClassName: {{ .Values.ingress.class }}
   rules:
     - host: {{ .Values.ingress.host }}
       http:

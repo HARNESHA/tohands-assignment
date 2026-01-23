@@ -15,8 +15,9 @@ frontend:
     max: 2
     memory: 70
   ingress:
-    enabled: false
-    host: ui.example.com
+    enabled: true
+    class: alb
+    host: assignment.jay.cloud-ip.cc
     scheme: internet-facing
     group: app-ui
 
@@ -34,8 +35,9 @@ backend:
     max: 2
     memory: 70
   ingress:
-    enabled: false
-    host: ui.example.com
+    enabled: true
+    class: alb
+    host: assignment-api.jay.cloud-ip.cc
     scheme: internet-facing
     group: app-api
   
