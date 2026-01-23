@@ -11,6 +11,10 @@ env:
   AWS_ROLE_ARN: arn:aws:iam::826136930409:role/GitHubAction-AssumeRoleWithAction
   EKS_CLUSTER_NAME: assignment-cluster
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   deploy:
     if: |
