@@ -5,7 +5,7 @@ frontend:
   namespace: frontend
   image:
     repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-frontend
-    tag: 00a8c883b6cdf497fe2c2de04b672ac78a9cdb02
+    tag: 0de8d677c70589de51fb7cd57635b74f41fa9dfa
   replicaCount: 1
   service:
     port: 80
@@ -24,7 +24,7 @@ backend:
   namespace: backend
   image:
     repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-backend
-    tag: 00a8c883b6cdf497fe2c2de04b672ac78a9cdb02
+    tag: 0de8d677c70589de51fb7cd57635b74f41fa9dfa
   replicaCount: 1
   service:
     port: 8000
