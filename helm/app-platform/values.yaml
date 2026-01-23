@@ -1,0 +1,40 @@
+global:
+  environment: dev
+frontend:
+  namespace: frontend
+  image:
+    repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-frontend
+    tag: a918a2a572f22ba4d04f640259b7c772910b3d1e
+  replicaCount: 1
+  service:
+    port: 80
+  hpa:
+    enabled: true
+    min: 1
+    max: 10
+    memory: 70
+  ingress:
+    enabled: true
+    class: alb
+    host: assignment.jay.cloud-ip.cc
+    scheme: internet-facing
+    group: application
+backend:
+  namespace: backend
+  image:
+    repository: 826136930409.dkr.ecr.ap-south-1.amazonaws.com/assignment-backend
+    tag: a918a2a572f22ba4d04f640259b7c772910b3d1e
+  replicaCount: 1
+  service:
+    port: 8000
+  hpa:
+    enabled: true
+    min: 1
+    max: 10
+    memory: 70
+  ingress:
+    enabled: true
+    class: alb
+    host: assignment-api.jay.cloud-ip.cc
+    scheme: internet-facing
+    group: application

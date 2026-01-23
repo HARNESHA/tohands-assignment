@@ -1,0 +1,92 @@
+name: CI-Pipeline
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  AWS_ROLE_ARN: arn:aws:iam::826136930409:role/GitHubAction-AssumeRoleWithAction
+  ECR_REGISTRY: 826136930409.dkr.ecr.ap-south-1.amazonaws.com
+  ECR_BACKEND_REPO: assignment-backend
+  ECR_FRONTEND_REPO: assignment-frontend
+  EKS_CLUSTER_NAME: assignment-cluster
+  VITE_API_URL: http://assignment-api.jay.cloud-ip.cc
+  IMAGE_TAG: ${{ github.sha }}
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  backend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push backend image
+        working-directory: application/backend
+        run: |
+          docker build -t $ECR_BACKEND_REPO:${IMAGE_TAG} .
+          docker tag $ECR_BACKEND_REPO:${IMAGE_TAG} \
+            ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:${IMAGE_TAG}
+          docker tag $ECR_BACKEND_REPO:${IMAGE_TAG} \
+            ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:latest
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:${IMAGE_TAG}
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_BACKEND_REPO:latest
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & push frontend image
+        working-directory: application/frontend
+        run: |
+          docker build --build-arg VITE_API_URL=${VITE_API_URL} \
+            -t $ECR_FRONTEND_REPO:${IMAGE_TAG} .
+          docker tag $ECR_FRONTEND_REPO:${IMAGE_TAG} \
+            ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
+          docker tag $ECR_FRONTEND_REPO:${IMAGE_TAG} \
+            ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:${IMAGE_TAG}
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_FRONTEND_REPO:latest
+
+  update-helm-chart:
+    runs-on: ubuntu-latest
+    needs:
+      - backend-build
+      - frontend-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update Helm Chart with new image tags
+        run: |
+          yq -i '.backend.image.tag = strenv(IMAGE_TAG)' helm/app-platform/values.yaml
+          yq -i '.frontend.image.tag = strenv(IMAGE_TAG)' helm/app-platform/values.yaml
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add helm/app-platform/values.yaml
+          git commit -m "Update Helm chart with image tag ${IMAGE_TAG}" || echo "No changes to commit"
+          git push origin HEAD:${{ github.ref }} 
