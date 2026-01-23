@@ -2,7 +2,7 @@ import boto3
 from datetime import datetime, timedelta
 
 
-REGION = "ap-south-1"      # region where most resources exist
+REGION = "ap-south-1"   
 TAG_KEY = "CreatedWith"
 TAG_VALUE = "Terraform"
 TIME_FORMAT = "%Y-%m-%d"
