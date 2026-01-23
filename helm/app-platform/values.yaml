@@ -11,7 +11,7 @@ frontend:
   hpa:
     enabled: true
     min: 1
-    max: 2
+    max: 10
     memory: 70
   ingress:
     enabled: true
@@ -30,7 +30,7 @@ backend:
   hpa:
     enabled: true
     min: 1
-    max: 2
+    max: 10
     memory: 70
   ingress:
     enabled: true
